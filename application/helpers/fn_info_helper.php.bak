@@ -1,0 +1,196 @@
+
+<?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+function isAdmin() {
+        $type = $this->session->userdata('type');
+        if ($type == 1) {
+            return TRUE;
+        }  else {
+            return FALSE; 
+        }
+    }
+
+function ajout_succes($message) {
+return "<script>
+ 
+	  PNotify.success({title: 'Enregistrement Reussi', text: '".$message."'})
+ 
+</script>";
+}
+function ajout_succes_info($text) {
+return    "<script> PNotify.success({title: 'Enrégistrement Reussi',
+    text: '".$text."',
+    hide: true,
+    type: 'success',
+    buttons: {
+    sticker: false
+    }
+    });    
+</script>";
+}
+function ajout_succes_bienvenue($text) {
+return    "<script> PNotify.success({title: 'BIENVENUE SUR APP COMITE',
+    text: '".$text."',
+    hide: true,
+    type: 'success',
+    buttons: {
+    sticker: false
+    }
+    });    
+</script>";
+}
+
+function succes_info($title, $text) {
+return    "<script> new PNotify({title: '$title',
+    text: '".$text."',
+    hide: true,
+    type: 'success',
+    buttons: {
+    sticker: false
+    }
+    });    
+</script>";
+}
+
+function warning_info( $text) {
+return    "<script> PNotify.info({title: 'Avertissement echec',
+    text: '".$text."',
+    hide: true,
+    type: 'warning',
+    buttons: {
+    sticker: false
+    }
+    });    
+</script>";
+}
+
+function danger_info($title, $text) {
+return    "<script> new PNotify({title: '$title',
+    text: '".$text."',
+    hide: true,
+    type: 'danger',
+    buttons: {
+    sticker: false
+    }
+    });    
+</script>";
+}
+
+function ajout_fail_info($text) {
+return    "<script> PNotify.info({title: 'Echec Connexion',
+    text: '".$text."',
+    hide: true,
+    type: 'warning',
+    buttons: {
+    sticker: false
+    }
+    });    
+</script>";
+}
+function echec_connexion($text) {
+return    "<script> PNotify.error({title: 'Echec Connexion',
+    text: '".$text."',
+    hide: true,
+    type: 'warning',
+    buttons: {
+    sticker: false
+    }
+    });    
+</script>";
+}
+
+function suppression_succes_info($text) {
+return    "<script> PNotify.success({title: 'Suppression Reussie',
+    text: '".$text."',
+    hide: true,
+    type: 'success',
+    buttons: {
+    sticker: false
+    }
+    });    
+</script>";
+}
+function suppression_succes_info_confirme($text) {
+return    "<script> PNotify.success({
+	title: 'Suppression Reussie',
+    text: '".$text."',
+    hide: true,
+    type: 'success',
+    modules: {
+    confirm:{confirm:true}, buttons:{closed:true,
+    }
+    });    
+</script>";
+}
+function scan_succes_info($text) {
+return    "<script> PNotify.success({title: 'Lecteur code pelerin',
+    text: '".$text."',
+    hide: true,
+    type: 'success',
+    buttons: {
+    sticker: false
+    }
+    });    
+</script>";
+}
+function suppression_fail_info($text) {
+return    "<script> new PNotify({title: 'Echec Suppression',
+    text: '".$text."',
+    hide: true,
+    type: 'warning',
+    buttons: {
+    sticker: false
+    }
+    });    
+</script>";
+}
+
+function delivre_succes_info($text) {
+return    "<script> new PNotify({title: 'Livraison Reussie',
+    text: '".$text."',
+    hide: true,
+    type: 'success',
+    buttons: {
+    sticker: false
+    }
+    });    
+</script>";
+}
+function delivre_fail_info($text) {
+return    "<script> new PNotify({title: 'Echec Livraison',
+    text: '".$text."',
+    hide: true,
+    type: 'warning',
+    buttons: {
+    sticker: false
+    }
+    });    
+</script>";
+}
+
+
+function mise_ajour_succes_info($text){
+     return "<script> new PNotify({
+    title: 'Mise à jour Réussie',
+    text: '$text',
+    hide: true,
+    type: 'success',
+    buttons: {
+    sticker: false
+    }
+    });    
+</script>"; 
+}
+ 
+ function mise_ajour_fail_info($text){
+     return "<script> new PNotify({
+    title: 'Echec Mise à jour',
+    text: '$text',
+    hide: true,
+    type: 'warning',
+    buttons: {
+    sticker: false
+    }
+    });    
+</script>"; 
+}
+?>

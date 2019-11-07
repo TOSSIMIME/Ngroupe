@@ -1,0 +1,138 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"> 
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr" > 
+    <head>
+        <title>eHadj 20</title>
+       <meta http-equiv="Content-Type" content="text/html; charset=<?php echo $this->config->item('charset'); ?>" />
+        <link rel="stylesheet" type="text/css" href="<?php echo css_url('bootstrap'); ?>" />
+		 <link rel="stylesheet" type="text/css" media="screen" href="<?php echo css_url('styles'); ?>" />
+		    <link rel="stylesheet" type="text/css" media="screen" href="<?php echo css_url('bootstrap-responsive'); ?>" />
+			 <script src="<?php echo js_url('bootstrap'); ?>"></script>
+			  <script src="<?php echo js_url('jquery-1.8.3.min'); ?>"></script>
+		 <script>
+
+            (function($)
+            {
+                $(document).ready(function()
+                {
+                    $.ajaxSetup(
+                            {
+                                cache: false,
+                                beforeSend: function() {
+
+
+                                },
+                                complete: function() {
+
+                                    $('#quota').show();
+                                },
+                                success: function() {
+                                    ;
+                                    $('#quota').show();
+                                }
+                            });
+                    var site_url = "<?php echo site_url('Pelerin/quota_ag'); ?>"; //append id at end
+                    $('#quota').load(site_url);
+                    var refreshId = setInterval(function()
+                    {
+                        $('#quota').load(site_url);
+                    }, 60000);
+                });
+            })(jQuery);
+        </script>
+    </head>
+    <body   >
+<div class="navbar navbar-inverse  navbar-fixed-top " style="background-color:#046380; border:0px;" >
+    <div class="container">
+        <div class="navbar-collapse collapse">
+           <ul class="nav navbar-nav">
+      <li class="active"><a href="<?php echo site_url('Admin'); ?>"><img width="112" height="35" src="<?php 
+                     $photo = $this->session->userdata('photo');
+                  echo   site_url("images/uplaods/".$photo);?>" title="Logo" alt="LOGO"/> <?php echo $_SESSION['agence'];?></a></li>
+      <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><font COLOR="#FFFFFF" >Utilisateurs</font></a>
+	  <ul class="dropdown-menu ">
+	<li><a href="<?php echo site_url('User'); ?>" class=" btn btn-warning sm" style="color:white;"><span class="glyphicon glyphicon-user"> <font COLOR="#FFFFFF" >Nouveau utilisateurs</font></span></a></li>
+	<li><a href="<?php echo site_url('User/liste'); ?>" class=" btn btn-warning sm" style="color:white;"><span class="glyphicon glyphicon-user"><font COLOR="#FFFFFF" > liste des utilisateurs</font></span></a></li>
+	</ul>
+	  </li>
+	   <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><font COLOR="#FFFFFF" >Délégué(e)/facilitateur</font></a>
+	  <ul class="dropdown-menu ">
+	<li><a href="<?php echo site_url('User/new_facilitateur'); ?>" class=" btn btn-warning sm" style="color:white;"><span class="glyphicon glyphicon-user"> <font COLOR="#FFFFFF" >Nouveau partenaire</font></span></a></li>
+	<li><a href="<?php echo site_url('User/liste_facilite'); ?>" class=" btn btn-warning sm" style="color:white;"><span class="glyphicon glyphicon-user"><font COLOR="#FFFFFF" > liste des partenaires</font></span></a></li>
+	</ul>
+	  </li>
+	  <li><a href="#" class="dropdown-toggle" data-toggle="dropdown"> <font COLOR="#FFFFFF" >Gestion pelerin</font></a>
+	  <ul class="dropdown-menu ">
+	<li><a href="<?php echo site_url('Pelerin'); ?>" class=" btn btn-warning sm" style="color:white;"><span class="glyphicon glyphicon-user">  Scanner </span></a></li>
+	<li><a href="<?php echo site_url('Pelerin/New_pelerin'); ?>" class=" btn btn-warning sm" style="color:white;"><span class="glyphicon glyphicon-user"> Manuel</span></a></li>
+		<li><a href="<?php echo site_url('Pelerin/liste'); ?>" class=" btn btn-warning sm" style="color:white;"><span class="glyphicon glyphicon-user">  Liste pelerins</span></a></li>
+	</ul>
+	  </li>
+	   <li><a href="#" class="dropdown-toggle" data-toggle="dropdown"><font COLOR="#FFFFFF" > Manifest</font></a>
+	  <ul class="dropdown-menu ">
+	  <li><a href="<?php echo site_url('Admin/new_service'); ?>" class=" btn btn-warning sm" style="color:white;"><span class="glyphicon glyphicon-user">  Créer service </span></a></li>
+	  <li><a href="<?php echo site_url('Vols'); ?>" class=" btn btn-warning sm" style="color:white;"><span class="glyphicon glyphicon-plane"><font COLOR="#FFFFFF" > Consulte vols</font></span></a></li>
+	<li><a href="<?php echo site_url('Vols/Gerer_trajet'); ?>" class=" btn btn-warning sm" style="color:white;"><span class="glyphicon glyphicon-plane"> <font COLOR="#FFFFFF" >Gerer les vols</font></span></a></li>
+	<li><a href="#" class=" btn btn-warning sm" style="color:white;"><span class="glyphicon glyphicon-home">  <font COLOR="#FFFFFF" >Gerer les hotels</font></span></a></li>
+	<li><a href="<?php echo site_url('pdf'); ?>" class=" btn btn-warning sm" style="color:white;"><span class="glyphicon glyphicon-user">  Exporte liste </span></a></li>
+	<li><a href="#s" class=" btn btn-warning sm" style="color:white;"><span class="glyphicon glyphicon-user">  Manuel</span></a></li>
+	</ul>
+	  </li>
+    </ul>
+	<ul class="nav navbar-nav ">
+	<li class=""><a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-user"><font COLOR="#FFFFFF" > SESSIONS </font></span></a>
+	<ul class="dropdown-menu ">
+	<li><a href=""id="<?php echo site_url('Welcome/accounte/'.$_SESSION["id"]); ?>" class=" btn btn-primary sm company" style="color:white;"><span class="glyphicon glyphicon-user"> <?php echo $_SESSION['nom'];?></span></a></li>
+	<li><a href="<?php echo site_url('Welcome/deconnexion'); ?>" class=" btn btn-default sm" ><span class="glyphicon glyphicon-lock">  Se deconnecter</a></li>
+	</ul>
+	</li>
+	</ul>
+        </div><!--/.nav-collapse -->
+    </div>
+</div>
+ <br>
+<div class="navbar pull-right"  >
+	 <div id="quota"></div>
+</div>
+<p><br><br><br></p>
+<div class="modal fade" id="confirm-delete" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+ <div class="modal-dialog">
+ <div class="modal-content">
+
+<div class="modal-header">
+ <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+ <h4 class="modal-title" id="myModalLabel">Suppression</h4>
+</div>
+
+<div class="modal-body">
+ <p>Voulez vraiment supprimer cet element?</p>
+
+</div>
+
+<div class="modal-footer">
+ <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+ <a href="#" class="btn btn-danger danger">Supprimer</a>
+</div>
+ </div>
+ </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function(){
+    $(".company").click(function(e){
+    e.preventDefault();
+    var id = $(this).attr('id');
+    var site_url = "<?php echo site_url('Welcome/accounte/'); ?>" +id; //append id at end
+    //$("#loading").load(site_url);
+    //alert(id);
+	window.location.replace(id);
+    //alert("aawa");
+    });
+    });
+
+</script>
+<script>
+ $('#confirm-delete').on('show.bs.modal', function(e) {
+ $(this).find('.danger').attr('href', $(e.relatedTarget).data('href')); 
+ $('.debug-url').html('Delete URL: <strong>' + $(this).find('.danger').attr('href') + '</strong>');
+ })
+</script>

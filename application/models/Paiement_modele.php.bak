@@ -1,0 +1,43 @@
+<?php
+if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+class Paiement_modele extends CI_Model{
+    protected  $table=' tab_payement';
+	protected  $tables='tab_quotas';
+	protected  $vols='tab_vols';
+	protected  $paie='tab_payement';
+    
+    
+    public function ajouter_paiement($types,$txt_montant,$txt_cheque, $txt_banque,$txt_compte,$txt_virement,$autre,$id,$type){
+        $del=0;
+        $save=date('Y-m-d H:i:s');
+        $jour=date('Y-m-d');
+      // Ces données seront automatiquement échappées
+        $this->db->set('PAY_TYPE ', $types);
+        $this->db->set('PAY_MONTANT', $txt_montant);
+        $this->db->set('PAY_NUM_CHEQUE', $txt_cheque);
+        $this->db->set('PAY_BANQUE', $txt_banque);
+        $this->db->set('PAY_COMPTE', $txt_compte);
+        $this->db->set('PAY_DATEVIREMENT', $txt_virement);
+         $this->db->set('PAY_AUTRE', $autre);
+         $this->db->set('PAY_PELERIN', $id);
+         $this->db->set('PAY_SAVE', $save);
+         $this->db->set('PAY_JOUR', $jour);
+         $this->db->set('PAY_DEL', $del);
+        return $this->db->insert($this->table);   
+    }
+	
+public function liste_paie($where=  array()){
+         return $this->db->select('*')
+   ->from($this->paie)
+   ->where($where)
+   ->order_by('PAY_ID', 'desc')
+                 
+   ->get()
+   ->result();
+        
+    }
+}
+
+
+
+?>

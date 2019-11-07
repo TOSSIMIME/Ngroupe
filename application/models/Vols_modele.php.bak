@@ -1,0 +1,106 @@
+<?php
+if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+class Vols_modele extends CI_Model{
+    protected  $table='tab_agence';
+	protected  $tables='tab_quotas';
+	protected  $batiment='tab_batiment';
+	protected  $vols='tab_vols';
+	protected  $trajet='tab_trajet';
+    
+	 public function ajouter_vols($trajet,$arriver,$nom_compagnie,$num_vol, $volume_vol,$tel_vol){
+        $del=0;
+        $save=date('Y-m-d H:i:s');
+      // Ces données seront automatiquement échappées
+        $this->db->set('TRAJET_VOLS  ', $trajet);
+        $this->db->set('ARRIVER_VOLS', $arriver);
+        $this->db->set('COMPAGNIE_VOLS', $nom_compagnie);
+        $this->db->set('NUMERO_VOLS', $num_vol);
+		$this->db->set('VOLUME_VOLS', $volume_vol);
+           $this->db->set('PHONE_VOLS ', $tel_vol);
+		   $this->db->set('SAVE_VOLS', $save);
+           $this->db->set('DELETE_VOLS', $del);
+        return $this->db->insert($this->vols);   
+    }
+	public function ajouter_trajet($id_vols,$etat,$date_trajet){
+        $del=0;
+        $save=date('Y-m-d H:i:s');
+      // Ces données seront automatiquement échappées
+        $this->db->set('VOLS_ID  ', $id_vols);
+        $this->db->set('TYPE_TRAJET', $etat);
+        $this->db->set('DATE_TRAJET', $date_trajet);
+        $this->db->set('SAVE_TRAJET', $save);
+           $this->db->set('DELETE_TRAJET ', $del);
+        return $this->db->insert($this->trajet);   
+    }
+    public function update_vols($id ,$trajet,$arriver,$nom_compagnie,$num_vol, $volume_vol,$tel_vol){
+                    $update=date('Y-m-d H:i:s');
+      // Ces données seront automatiquement échappées
+        $this->db->set('TRAJET_VOLS', $trajet);
+        $this->db->set('ARRIVER_VOLS', $arriver);
+        $this->db->set('COMPAGNIE_VOLS', $nom_compagnie);
+        $this->db->set('NUMERO_VOLS', $num_vol);
+          $this->db->set('VOLUME_VOLS', $volume_vol);
+          $this->db->set('PHONE_VOLS', $tel_vol);
+          $this->db->set('UPDATE_VOLS', $update);
+        // La condition
+        $this->db->where('ID_VOLS', (int) $id);
+        return $this->db->update($this->vols);
+        
+    }
+    public function delete_vols($id){
+        return $this->db->where('ID_VOLS', (int) $id)->delete($this->vols);
+    }
+	public function delete_vols($id){
+        return $this->db->where('ID_TRAJET', (int) $id)->delete($this->trajet);
+        
+    }
+ public function liste_vols($where=  array()){
+         return $this->db->select('*')
+   ->from($this->vols)
+   ->where($where)
+   ->order_by('ID_VOLS', 'desc')
+                 
+   ->get()
+   ->result();
+        
+    }
+     public function liste_trajet($where=  array()){
+         return $this->db->select('*')
+   ->from($this->trajet.' AS T ')
+   ->where($where)
+    ->join('tab_vols as V','ID_VOLS=T.VOLS_ID' )
+   ->order_by('ID_TRAJET', 'desc')
+                 
+   ->get()
+   ->result();
+        
+    }
+function get_agence_info($where=  array()) {
+            $agence=array();
+    $query_agence = $this->liste_agence($where);   
+    if (is_array($query_agence) && count($query_agence)==1) {
+            foreach ($query_agence as $loop) {
+               $agence['nom']=$loop->NOM_AG;
+               $agence['ag_user']=$loop->USER_AG;
+               $agence['id']=$loop->ID_AG;
+                $agence['login']=$loop->LOGIN_AG;
+                return $agence;
+                
+            }
+        }  else {
+            return FALSE;    
+        }
+        
+        
+
+
+        
+    }
+    
+     
+
+}
+
+
+
+?>

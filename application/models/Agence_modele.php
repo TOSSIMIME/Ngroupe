@@ -1,0 +1,299 @@
+<?php
+if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+class Agence_modele extends CI_Model{
+    protected  $table='tab_agence'; 
+	protected  $tab_admin='tab_admin';
+	protected  $tables='tab_quotas';
+	protected  $batiment='tab_batiment';
+	protected  $vols='tab_vols';
+	protected  $trajet='tab_trajet';
+    
+    
+    public function ajouter_agence($nom_agence, $contact_agence, $email_agence,$adresse_agence,$siege_agence,$photoNom, $etat ){
+        $del=0;
+        $save=date('Y-m-d H:i:s');
+      // Ces données seront automatiquement échappées
+        $this->db->set('NOM_AG', $nom_agence);
+        $this->db->set('PHONE_AG', $contact_agence);
+        $this->db->set('MAIL_AG', $email_agence);
+        $this->db->set('ADRESSE_AG', $adresse_agence);
+         $this->db->set('SIEGE_AG', $siege_agence);
+          $this->db->set('LOGO_AG', $photoNom);
+		  $this->db->set('ACTIVE_AG', $etat);
+          $this->db->set('SAVE_AG', $save);
+           $this->db->set('DELETE_AG', $del);
+        return $this->db->insert($this->table);   
+    }
+	 public function ajouter_quotas($quotas,$anne_quotas,$motif_quotas, $description ){
+        $del=0;
+        $save=date('Y-m-d H:i:s');
+      // Ces données seront automatiquement échappées
+        $this->db->set('QUOTAS ', $quotas);
+        $this->db->set('ANNE_QUOTA', $anne_quotas);
+        $this->db->set('MOTIF_QUOTA ', $motif_quotas);
+        $this->db->set('DESCRIPTION', $description);
+		$this->db->set('SAVE_QUOTA', $save);
+           $this->db->set('DELETE_QUOTA ', $del);
+        return $this->db->insert($this->tables);   
+    }
+	 public function ajouter_batiment($nom_bati,$proprietaire,$quarier, $nb_lit,$id_ag){
+        $del=0;
+        $save=date('Y-m-d H:i:s');
+      // Ces données seront automatiquement échappées
+         $this->db->set('NOM_BATI ', $nom_bati);
+        $this->db->set('PROPRIETAIRE_BATI', $proprietaire);
+        $this->db->set('QUARTIER_BATI ', $quarier);
+        $this->db->set('NB_LIT_BATI', $nb_lit);
+		$this->db->set('AGENCE_BATI', $id_ag);
+           $this->db->set('SAVE_BATI ', $save);
+           $this->db->set('DELETE_BATI ', $del);
+        return $this->db->insert($this->batiment);   
+    }
+	 public function ajouter_vols($trajet,$arriver,$nom_compagnie,$num_vol, $volume_vol,$tel_vol){
+        $del=0;
+        $save=date('Y-m-d H:i:s');
+      // Ces données seront automatiquement échappées
+        $this->db->set('TRAJET_VOLS  ', $trajet);
+        $this->db->set('ARRIVER_VOLS', $arriver);
+        $this->db->set('COMPAGNIE_VOLS', $nom_compagnie);
+        $this->db->set('NUMERO_VOLS', $num_vol);
+		$this->db->set('VOLUME_VOLS', $volume_vol);
+           $this->db->set('PHONE_VOLS ', $tel_vol);
+		   $this->db->set('SAVE_VOLS', $save);
+           $this->db->set('DELETE_VOLS', $del);
+        return $this->db->insert($this->vols);   
+    }
+	public function ajouter_trajet($id_vols,$etat,$date_trajet){
+        $del=0;
+        $save=date('Y-m-d H:i:s');
+      // Ces données seront automatiquement échappées
+        $this->db->set('VOLS_ID  ', $id_vols);
+        $this->db->set('TYPE_TRAJET', $etat);
+        $this->db->set('DATE_TRAJET', $date_trajet);
+        $this->db->set('SAVE_TRAJET', $save);
+           $this->db->set('DELETE_TRAJET ', $del);
+        return $this->db->insert($this->trajet);   
+    }
+    public function count_agence($where=  array()) {
+     return (int) $this->db->where($where)->count_all_results($this->table);   
+    } 
+	public function count_vols($where=  array()) {
+     return (int) $this->db->where($where)->count_all_results($this->vols);   
+    }
+    
+//////////somme ou quota
+     public function get_sum($where=  array()) {
+     $query= $this->db->select_sum('QUOTA_AG ','nb')
+   ->from($this->table)
+   ->where($where)
+   ->where('DELETE_AG=0')
+   ->get()
+   ->result()          
+  ;
+     $quota=null;
+      foreach ($query as $loop) { 
+     $quota=$loop->nb;
+     
+     }
+     return $quota;
+      }
+    public function disable_agence($id){
+        // La condition
+		$update=date('Y-m-d H:i:s');
+         $this->db->set('UPDATE_AG',$update);
+         $this->db->set('DELETE_AG', 1);
+        $this->db->where('ID_AG', (int) $id);
+        return $this->db->update($this->table);   
+    }
+    
+    
+    public function update_agence($nom_agence, $contact_agence, $email_agence,$adresse_agence,$siege_agence,$photoNom, $etat){
+                    $update=date('Y-m-d H:i:s');
+      // Ces données seront automatiquement échappées
+        $this->db->set('NOM_AG', $nom_agence);
+        $this->db->set('PHONE_AG', $contact_agence);
+        $this->db->set('MAIL_AG', $email_agence);
+        $this->db->set('ADRESSE_AG', $adresse_agence);
+         $this->db->set('SIEGE_AG', $siege_agence);
+          $this->db->set('LOGO_AG', $photoNom);
+		   $this->db->set('ACTIVE_AG', $etat);
+          $this->db->set('UPDATE_AG', $update);
+        // La condition
+        $this->db->where('ID_AG', (int) $id);
+        return $this->db->update($this->table);
+        
+    }
+	public function affecter($ids,$quotas){
+                    $update=date('Y-m-d H:i:s');
+      // Ces données seront automatiquement échappées
+       
+          $this->db->set('QUOTA_AG', $quotas);
+          $this->db->set('UPDATE_AG', $update);
+		   $this->db->where('ID_AG', (int) $ids);
+        return $this->db->update($this->table);
+        
+    }
+	
+	
+	 public function update_quotas($id,$quotas,$anne_quotas,$motif_quotas, $description){
+                    $update=date('Y-m-d H:i:s');
+      // Ces données seront automatiquement échappées
+        $this->db->set('QUOTAS', $quotas);
+        $this->db->set('ANNE_QUOTA', $anne_quotas);
+        $this->db->set('MOTIF_QUOTA', $motif_quotas);
+        $this->db->set('DESCRIPTION', $description);
+          $this->db->set('UPDATE_QUOTA ', $update);
+        // La condition
+        $this->db->where('ID_QUOTA', (int) $id);
+        return $this->db->update($this->tables);
+        
+    }
+	///// update batiment
+	public function update_batiment($id,$nom_bati,$proprietaire,$quarier,$nb_lit,$id_ag){
+                    $update=date('Y-m-d H:i:s');
+      // Ces données seront automatiquement échappées
+         $this->db->set('NOM_BATI ', $nom_bati);
+        $this->db->set('PROPRIETAIRE_BATI', $proprietaire);
+        $this->db->set('QUARTIER_BATI ', $quarier);
+        $this->db->set('NB_LIT_BATI', $nb_lit);
+		$this->db->set('AGENCE_BATI', $id_ag);
+        $this->db->set('UPDATE_BATI ', $update);
+        //$this->db->set('DELETE_BATI ', $del);
+        // La condition
+        $this->db->where('ID_BATI', (int) $id);
+        return $this->db->update($this->batiment);
+        
+    }
+    public function delete_agence($id){
+        return $this->db->where('ID_AG', (int) $id)->delete($this->table);
+        
+    }
+   
+    
+    public function liste_agence($where=  array()){
+         return $this->db->select('*')
+   ->from($this->table.' AS A ')
+  // ->join('user as U','U.ID_AG=B.AGENCE_BATI' )
+   ->where($where)
+   ->order_by('ID_AG', 'desc')
+                 
+   ->get()
+   ->result();
+        
+    }
+	public function liste_admin($where=  array()){
+         return $this->db->select('*')
+   ->from($this->tab_admin.' AS A ')
+  // ->join('user as U','U.ID_AG=B.AGENCE_BATI' )
+   ->where($where)
+   ->order_by('ID_AD', 'desc')
+                 
+   ->get()
+   ->result();
+        
+    }
+    public function liste_quotas($where=  array()){
+		$an=date('Y');
+         return $this->db->select('*')
+   ->from($this->tables)
+   ->where($where)
+   ->where('ANNE_QUOTA',$an)
+   ->order_by('ID_QUOTA', 'desc')
+                 
+   ->get()
+   ->result();
+        
+    }
+	 public function liste_batiment($where=  array()){
+         return $this->db->select('*')
+   ->from($this->batiment.' AS B ')
+   ->where($where)
+   ->join('tab_agence as A','ID_AG=B.AGENCE_BATI' )
+   ->order_by('ID_BATI', 'desc')
+                 
+   ->get()
+   ->result();
+        
+    }
+ public function liste_vols($where=  array()){
+         return $this->db->select('*')
+   ->from($this->vols)
+   ->where($where)
+   ->order_by('ID_VOLS', 'desc')
+                 
+   ->get()
+   ->result();
+        
+    }
+     public function liste_trajet($where=  array()){
+         return $this->db->select('*')
+   ->from($this->trajet.' AS T ')
+   ->where($where)
+    ->join('tab_vols as V','ID_VOLS=T.VOLS_ID' )
+   ->order_by('ID_TRAJET', 'desc')
+                 
+   ->get()
+   ->result();
+        
+    }
+     public function get_agence($where=  array()) {
+     return $this->db->select('*')
+   ->from($this->table)
+   ->where($where)
+   ->where('DELETE_AG=0')
+   ->order_by('ID_AG', 'desc')
+   ->get()
+   ->result();
+        
+    }
+    
+    
+     function connect_agence($id){
+    $date=date('Y-m-d H:i:s');
+    $this->db->set('CONNECT_AD', $date);
+    $this->db->where('ID_AD', (int) $id);
+    return $this->db->update($this->tab_admin);    
+    }
+function get_agence_info($where=  array()) {
+            $agence=array();
+    $query_agence = $this->liste_agence($where);   
+    if (is_array($query_agence) && count($query_agence)==1) {
+            foreach ($query_agence as $loop) {
+               $agence['nom']=$loop->NOM_AG;
+               $agence['ag_user']=$loop->USER_AG;
+               $agence['id']=$loop->ID_AG;
+                $agence['login']=$loop->LOGIN_AG;
+                return $agence;
+                
+            }
+        }  else {
+            return FALSE;    
+        } } 
+function get_admin_info($where=  array()) {
+            $agence=array();
+    $query_agence = $this->liste_admin($where);   
+    if (is_array($query_agence) && count($query_agence)==1) {
+            foreach ($query_agence as $loop) {
+               $agence['nom']=$loop->NOM_AD;
+               //$agence['ag_user']=$loop->USER_AG;
+               $agence['id']=$loop->ID_AD;
+                $agence['login']=$loop->LOGIN_AD;
+                return $agence;
+                
+            }
+        }  else {
+            return FALSE;    
+        }
+        
+        
+
+
+        
+    }
+    
+     
+
+}
+
+
+?>

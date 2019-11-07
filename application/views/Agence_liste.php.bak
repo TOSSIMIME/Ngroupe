@@ -1,0 +1,27 @@
+<link rel="stylesheet" type="text/css" media="screen" href="<?php echo css_url('bootstrap.min'); ?>" />
+<link rel="stylesheet" type="text/css" href="<?php echo css_url('dataTables'); ?>"/>
+        <script src="<?php echo js_url('dataTables'); ?>"></script>
+  <div class="container-fluid">
+  <div class="row">
+  <div class="col-md-1"></div>
+   <div class="col-md-12">
+   <div class="panel panel-primary" >
+    <div class="panel-heading "><center><span class="glyphicon glyphicon-th"> LISTE DES AGENCES DE VOYAGES</span></center></div>
+  <div class="panel-body">
+  <?php echo $tableau;?>
+  </div>
+  </div>
+   
+   </div>
+  </div>
+   <script src="<?php echo js_url('jquery'); ?>"></script>
+   <script src="<?php echo js_url('bootstrap.min'); ?>"></script>
+    <script src="<?php echo js_url('dataTables'); ?>"></script>
+   <script src="<?php echo js_url('dataTables_element'); ?>"></script>
+   <script>
+   $(document).ready(function(){
+       var table=$('#tab').dataTable();
+   });
+      </script>
+</body>
+</html>

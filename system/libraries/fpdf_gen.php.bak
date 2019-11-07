@@ -1,0 +1,39 @@
+<?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+
+/**
+* Name:  FPDF
+* 
+* Author: Jd Fiscus
+* 	 	  jdfiscus@gmail.com
+*         @iamfiscus
+*          
+*
+* Origin API Class: http://www.fpdf.org/
+* 
+* Location: http://github.com/iamfiscus/Codeigniter-FPDF/
+*          
+* Created:  06.22.2010 
+* 
+* Description:  This is a Codeigniter library which allows you to generate a PDF with the FPDF library
+* 
+*/
+
+class CI_fpdf_gen {
+		
+	public function __construct() {
+            include_once(base_url('third_party/fpdf/fpdf-1.7.php'));
+            include_once('fpdf.php');
+            
+         //include_once('C:/wamp/www/eHadj20/third_party/fpdf/fpdf-1.7.php');
+		
+		$pdf = new FPDF();
+		$pdf->AddPage();
+		
+		$CI =& get_instance();
+		$CI->fpdf = $pdf;
+		
+	}
+	
+}
+
+

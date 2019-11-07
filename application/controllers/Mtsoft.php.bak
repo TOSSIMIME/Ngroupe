@@ -1,0 +1,190 @@
+<?php
+
+defined('BASEPATH') OR exit('No direct script access allowed');
+
+class Mtsoft extends CI_Controller {
+
+    public function __construct() {
+        parent::__construct();
+
+        //chargement des ressource du constructeur
+        $this->load->helper(array('url', 'assets'));
+        $this->load->helper('fn_info');
+        $this->load->library('form_validation');
+        $this->load->library('session');
+        
+        //chargement modele
+        $this->load->model('Agence_modele', 'agenceManager');
+       // $this->load->model('guerite_modele', 'gueriteManager');
+        $this->load->helper('form');
+        $this->load->helper('html');
+        $this->load->library('table');
+
+    }
+   
+
+    public function index() {
+          $type = $this->session->userdata('type');
+        if ($type=='') {
+        $data['info'] = $this->session->flashdata('info');
+		   $this->load->view("template/menu_top_header");
+            $this->load->view("Vue_mtsoft", $data);
+            $this->load->view("template/menu_footer");
+    }}
+
+    
+    public function delete($id) {
+          $type = $this->session->userdata('type');
+        if ($type==1) {
+        $result = $this->agenceManager->disable_agence($id);
+        if ($result) {
+            $info = suppression_succes_info('Element Supprimé avec Succès');
+            $this->session->set_flashdata('info', $info);
+        } else {
+            $info = suppression_fail_info('Echec Suppression Element');
+            $this->session->set_flashdata('info', $info);
+        }
+        redirect('Agence');
+    }}
+
+    public function update($id = '') {
+         //$data['options'] = $this->get_option_guerite();
+          $type = $this->session->userdata('type');
+        if ($type==1) {
+        $data['menu_top']="template/menu_top";
+        $data['main_content'] = "Edite_agence";
+        if ($id != '' && $id > 0) {
+            $query = $this->agenceManager->get_agence(array('ID_AG' => $id));
+            if ($query) {
+                $data['agence_edit'] = $query;
+            }
+        } elseif ($this->input->post('id')) {
+            $id = $this->input->post('id');
+        $this->form_validation->set_rules('nom_agence', '"Nom de l\'agence"', 'trim|required|min_length[4]|max_length[52]|encode_php_tags');
+        $this->form_validation->set_rules( 'login_agence',"Login agence", 'trim|required|min_length[2]|max_length[50]|encode_php_tags');
+        $this->form_validation->set_rules( 'mdp_agence',"Mot de Passe", 'trim|required|min_length[4]|max_length[50]|encode_php_tags');
+            if ($this->form_validation->run()) {
+                $isInsert = FALSE;
+                //recuperation valeur
+          $nom_agence = $this->input->post('nom_agence');
+            $login_agence = $this->input->post('login_agence');
+            $mdp_agence = $this->input->post('mdp_agence');
+            $contact_agence = $this->input->post('contact_agence');
+            $email_agence= $this->input->post('email_agence');
+            $adresse_agence= $this->input->post('adresse_agence');
+             $siege_agence= $this->input->post('siege_agence');
+              $etat= $this->input->post('etat');
+			   $logo_agence= $this->input->post('logo_agence');
+              $mdp_agence=md5($mdp_agence);           
+ $isInsert = $this->agenceManager->update_agence($id ,$nom_agence,$login_agence,$mdp_agence, $contact_agence, $email_agence,$adresse_agence,$siege_agence,$photoNom, $etat );
+                if ($isInsert) {
+                    $info = ajout_succes_info("Mise à jour Ajouté");
+                    $this->session->set_flashdata('info', $info);
+
+                    redirect('Agence');
+                   }else{
+                    $info = ajout_fail_info('Veuillez verifier vos information et réessayez');
+                    $this->session->set_flashdata('info', $info);
+                         }
+            } else {
+                $this->update($id);
+            }
+        } elseif ($id == "") {
+            redirect('Agences');
+        }
+
+        $data['info'] = "";
+        $data['tableau'] = $this->get_tableau();
+
+        $this->load->view('template/template', $data);
+    }}
+  public function liste($id = '') {
+        $data['info'] = $this->session->flashdata('info');
+        $data['menu_top'] = "template/menu_top";
+        $data['main_content'] = "Agence_liste";
+        $data['tableau'] = $this->get_tableau();
+        $this->load->view('template/template', $data);
+    }
+    
+function get_tableau() {
+    $type = $this->session->userdata('type');
+        if ($type==1) {  
+$template = array('table_open'=> '<table id="tab" class="  table table-hover table-striped table-bordered" border=1>' );
+        $this->table->set_heading(array('Agence_de_voyages ','Contacts', "E-mail" ,'Siege','Login ',  '<td colspan="2">Action</td>'));
+        
+        $query_agence = $this->agenceManager->liste_agence(array('DELETE_AG'=>0));
+        if (is_array($query_agence) && count($query_agence)) {
+            $droit="faible";
+          
+            foreach ($query_agence as $loop) {
+                $this->table->add_row(array($loop->NOM_AG,$loop->PHONE_AG, $loop->MAIL_AG,
+                $loop->SIEGE_AG,$loop->LOGIN_AG,
+                    '<a href="'.site_url("Agence/update/$loop->ID_AG").'" ><span class="glyphicon glyphicon-edit"></span> </a>',
+                    '<a href="'.site_url("Agence/delete/$loop->ID_AG").'"><span class="glyphicon glyphicon-trash"></span></a>'));
+            }
+        }
+
+        $this->table->set_template($template);
+        return $this->table->generate();
+}}
+
+ function resize($originalFile, $targetFile, $newFileName, $newWidth) {
+        $result = NULL;
+        $info = getimagesize($originalFile);
+        $mime = $info['mime'];
+
+        switch ($mime) {
+            case 'image/jpeg':
+                $image_create_func = 'imagecreatefromjpeg';
+                $image_save_func = 'imagejpeg';
+                $new_image_ext = 'jpg';
+                break;
+
+            case 'image/png':
+                $image_create_func = 'imagecreatefrompng';
+                $image_save_func = 'imagepng';
+                $new_image_ext = 'png';
+                break;
+
+            case 'image/gif':
+                $image_create_func = 'imagecreatefromgif';
+                $image_save_func = 'imagegif';
+                $new_image_ext = 'gif';
+                break;
+
+            default:
+                throw Exception('Unknown image type.');
+        }
+
+        $img = $image_create_func($originalFile);
+        list($width, $height) = getimagesize($originalFile);
+
+        $newHeight = ($height / $width) * $newWidth;
+        $tmp = imagecreatetruecolor($newWidth, $newHeight);
+        imagecopyresampled($tmp, $img, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
+
+        if (file_exists($targetFile)) {
+            unlink($targetFile);
+        }
+        if ($image_save_func($tmp, $targetFile . $newFileName . ".jpg")) {
+
+            return TRUE;
+        } else {
+            return FALSE;
+        }
+    }
+
+function  get_option_guerite(){
+    $options=  array();
+    $options[0]="--Choisir Guerite--";
+    $query_categorie = $this->gueriteManager->get_guerite();
+        if (is_array($query_categorie) && count($query_categorie)) {
+            foreach ($query_categorie as $loop) {
+                $options[$loop->GUE_ID]=$loop->GUE_NOM;
+            }
+        }
+        return $options;
+}
+
+}
+

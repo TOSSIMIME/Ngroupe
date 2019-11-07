@@ -1,0 +1,597 @@
+<?php
+
+defined('BASEPATH') OR exit('No direct script access allowed');
+
+class Agence extends CI_Controller {
+
+    public function __construct() {
+        parent::__construct();
+
+        //chargement des ressource du constructeur
+        $this->load->helper(array('url', 'assets'));
+		 $this->load->helper('fn_info_helper');
+        $this->load->library('form_validation');
+        $this->load->library('session');
+        //chargement modele
+        $this->load->model('Agence_modele', 'agenceManager');
+        $this->load->helper('form');
+        $this->load->helper('html');
+        $this->load->library('table');
+
+    }
+   
+
+    public function index() {
+          $type = $this->session->userdata('type');
+        if ($type==1) {
+        $data['info'] = $this->session->flashdata('info');
+        $data['menu_top']="template/menu_top";
+        $data['main_content'] = "Vue_agence";
+        $data['tableau'] = $this->get_tableau();
+        $this->load->view('template/template', $data);
+    }}
+
+    public function new_agence() {
+          $type = $this->session->userdata('type');
+        if ($type==1) {
+        $data['menu_top']="template/menu_top";
+        $data['main_content'] = "Vue_agence";
+        $this->form_validation->set_rules('nom_agence', '"Nom de l\'agence"', 'trim|required|min_length[4]|max_length[52]|encode_php_tags');
+        $this->form_validation->set_rules( 'confirme_mdp',"Confirmer Mot de Passe", 'trim|required|matches[mdp_agence]|min_length[4]|max_length[50]|encode_php_tags');
+        $this->form_validation->set_rules( 'contact_agence',"Contact de l\'agence", 'trim|required|min_length[4]|max_length[12]|is_numeric|encode_php_tags');
+        //$this->form_validation->set_rules( 'email_agence',"E-mail agence", 'trim|min_length[5]|max_length[50]|encode_php_tags');
+        //$this->form_validation->set_rules( 'adresse_agence',"Adresse agence", 'trim|min_length[5]|max_length[50]|encode_php_tags');
+       // $this->form_validation->set_rules( 'siege_agence',"SIEGE AGENCE", 'trim|min_length[5]|max_length[50]|encode_php_tags');
+       // $this->form_validation->set_rules( 'etat',"Statut agence", 'trim|min_length[5]|max_length[50]|encode_php_tags');
+        if ($this->form_validation->run()) {
+            $isInsert = FALSE;
+            //recuperation valeur
+            $nom_agence = $this->input->post('nom_agence');
+            $contact_agence = $this->input->post('contact_agence');
+            $email_agence= $this->input->post('email_agence');
+            $adresse_agence= $this->input->post('adresse_agence');
+             $siege_agence= $this->input->post('siege_agence');
+              $etat= $this->input->post('etat');
+			   $logo_agence= $this->input->post('logo_agence');
+             if (file_exists($_FILES['logo_agence']['tmp_name'])) {
+                $result = NULL;              
+                $photoName =  Date('Y-m-d-H-i-s');
+                $photoName = str_replace('-', '', $photoName);
+                $path='';             
+                $targetFile = "images/uploads/";              
+                $newFileName = $nom_agence . $contact_agence . $photoName;
+                 $photoNom = $nom_agence . $contact_agence . $photoName.".jpg";
+                $originalFile = $_FILES['logo_agence']['tmp_name'];
+                if ($this->resize($originalFile, $targetFile, $newFileName, 100)) {
+                    $newFileName = realpath($targetFile . $newFileName . ".jpg");
+                    $newFileName = addslashes($path);
+                    $photoNameUp = "logo_agence='" . $path . "',";
+                    $ifImage = TRUE;
+                } else {
+                    $newFileName = '';
+                }
+            }
+$isInsert = $this->agenceManager->ajouter_agence($nom_agence, $contact_agence, $email_agence,$adresse_agence,$siege_agence,$photoNom, $etat );
+
+            if ($isInsert) {
+                $info = ajout_succes_info("Nouvelle agence ajoutée avec success");
+                $this->session->set_flashdata('info', $info);
+
+                redirect('Agence');
+            } else {
+                $info = ajout_fail_info('Veuillez verifier vos information et réessayez');
+                $this->session->set_flashdata('info', $info);
+            }
+        }
+        $data['info'] = "";
+       $data['tableau'] = $this->get_tableau();
+        $this->load->view('template/template', $data);
+    }}
+
+    public function delete($id) {
+          $type = $this->session->userdata('type');
+        if ($type==1) {
+        $result = $this->agenceManager->disable_agence($id);
+        if ($result) {
+            $info = suppression_succes_info('Element Supprimé avec Succès');
+            $this->session->set_flashdata('info', $info);
+        } else {
+            $info = suppression_fail_info('Echec Suppression Element');
+            $this->session->set_flashdata('info', $info);
+        }
+        redirect('Agence');
+    }}
+
+    public function update($id = '') {
+         //$data['options'] = $this->get_option_guerite();
+          $type = $this->session->userdata('type');
+        if ($type==1) {
+        $data['menu_top']="template/menu_top";
+        $data['main_content'] = "Edite_agence";
+        if ($id != '' && $id > 0) {
+            $query = $this->agenceManager->get_agence(array('ID_AG' => $id));
+            if ($query) {
+                $data['agence_edit'] = $query;
+            }
+        } elseif ($this->input->post('id')) {
+            $id = $this->input->post('id');
+        $this->form_validation->set_rules('nom_agence', '"Nom de l\'agence"', 'trim|required|min_length[4]|max_length[52]|encode_php_tags');
+        $this->form_validation->set_rules( 'login_agence',"Login agence", 'trim|required|min_length[2]|max_length[50]|encode_php_tags');
+        $this->form_validation->set_rules( 'mdp_agence',"Mot de Passe", 'trim|required|min_length[4]|max_length[50]|encode_php_tags');
+            if ($this->form_validation->run()) {
+                $isInsert = FALSE;
+                //recuperation valeur
+          $nom_agence = $this->input->post('nom_agence');
+            $login_agence = $this->input->post('login_agence');
+            $mdp_agence = $this->input->post('mdp_agence');
+            $contact_agence = $this->input->post('contact_agence');
+            $email_agence= $this->input->post('email_agence');
+            $adresse_agence= $this->input->post('adresse_agence');
+             $siege_agence= $this->input->post('siege_agence');
+              $etat= $this->input->post('etat');
+			   $logo_agence= $this->input->post('logo_agence'); 
+if (file_exists($_FILES['logo_agence']['tmp_name'])) {
+                $result = NULL;              
+                $photoName =  Date('Y-m-d-H-i-s');
+                $photoName = str_replace('-', '', $photoName);
+                $path='';             
+                $targetFile = "images/uploads/";              
+                $newFileName = $nom_agence . $contact_agence . $photoName;
+                 $photoNom = $nom_agence . $contact_agence . $photoName.".jpg";
+                $originalFile = $_FILES['logo_agence']['tmp_name'];
+                if ($this->resize($originalFile, $targetFile, $newFileName, 100)) {
+                    $newFileName = realpath($targetFile . $newFileName . ".jpg");
+                    $newFileName = addslashes($path);
+                    $photoNameUp = "logo_agence='" . $path . "',";
+                    $ifImage = TRUE;
+                } else {
+                    $newFileName = '';
+                }
+            }			   
+ $isInsert = $this->agenceManager->update_agence($id ,$nom_agence,$login_agence,$mdp_agence, $contact_agence, $email_agence,$adresse_agence,$siege_agence,$photoNom, $etat );
+                if ($isInsert) {
+                    $info = ajout_succes_info("Mise à jour Ajouté");
+                    $this->session->set_flashdata('info', $info);
+                    redirect('Agence');
+                   }else{
+                    $info = ajout_fail_info('Veuillez verifier vos information et réessayez');
+                    $this->session->set_flashdata('info', $info);
+                         }
+            } else {
+                $this->update($id);
+            }
+        } elseif ($id == "") {
+            redirect('Agences');
+        }
+
+        $data['info'] = "";
+        $data['tableau'] = $this->get_tableau();
+
+        $this->load->view('template/template', $data);
+    }}
+  public function liste($id = '') {
+        $data['info'] = $this->session->flashdata('info');
+        $data['menu_top'] = "template/menu_top";
+        $data['main_content'] = "Agence_liste";
+        $data['tableau'] = $this->get_liste();
+        $this->load->view('template/template', $data);
+    }
+	public function liste_batiment($id = '') {
+        $data['info'] = $this->session->flashdata('info');
+        $data['menu_top'] = "template/menu_top";
+        $data['main_content'] = "liste_batiment";
+        $data['tableau'] = $this->get_batiment();
+        $this->load->view('template/template', $data);
+    }
+    public function New_quotas() {
+         $type = $this->session->userdata('type');
+        if ($type==1) {
+        $data['menu_top']="template/menu_top";
+        $data['main_content'] = "New_quotas";
+        $this->form_validation->set_rules('quotas', '"Quotas"', 'trim|required|min_length[4]|max_length[52]|encode_php_tags');
+        $this->form_validation->set_rules( 'anne_quotas',"Année", 'trim|required|min_length[2]|max_length[50]|encode_php_tags');
+        $this->form_validation->set_rules( 'motif_quotas',"Motif", 'trim|required|min_length[4]|max_length[50]|encode_php_tags');
+        if ($this->form_validation->run()) {
+            $isInsert = FALSE;
+            //recuperation valeur
+            $quotas = $this->input->post('quotas');
+            $anne_quotas = $this->input->post('anne_quotas');
+            $motif_quotas = $this->input->post('motif_quotas');
+            $description = $this->input->post('description');
+$isInsert = $this->agenceManager->ajouter_quotas($quotas,$anne_quotas,$motif_quotas, $description );
+
+            if ($isInsert) {
+                $info = ajout_succes_info("Nouveau quotas ajoutée avec success");
+                $this->session->set_flashdata('info', $info);
+
+                redirect('Agence/New_quotas');
+            } else {
+                $info = ajout_fail_info('Veuillez verifier vos information et réessayez');
+                $this->session->set_flashdata('info', $info);
+            }
+        }
+        $data['info'] = "";
+       $data['tableau'] = $this->get_quotas();
+        $this->load->view('template/template', $data);
+    }
+	}
+	public function new_batiment() {
+         $type = $this->session->userdata('type');
+        if ($type==1) {
+			 $data['agence_edit'] = $this->agenceManager->get_agence(array('DELETE_AG ' => 0));
+        $data['menu_top']="template/menu_top";
+        $data['main_content'] = "new_batiment";
+        $this->form_validation->set_rules('nom_bati', '"Nom du batiment"', 'trim|required|min_length[2]|max_length[52]|encode_php_tags');
+        $this->form_validation->set_rules( 'proprietaire',"Proprietaire", 'trim|required|min_length[2]|max_length[50]|encode_php_tags');
+        $this->form_validation->set_rules( 'quarier',"Quartier", 'trim|required|min_length[4]|max_length[50]|encode_php_tags');
+        if ($this->form_validation->run()) {
+            $isInsert = FALSE;
+            //recuperation valeur
+            $nom_bati = $this->input->post('nom_bati');
+            $proprietaire = $this->input->post('proprietaire');
+            $quarier = $this->input->post('quarier');
+            $nb_lit = $this->input->post('nb_lit');
+            $id_ag = $this->input->post('id_ag');
+$isInsert = $this->agenceManager->ajouter_batiment($nom_bati,$proprietaire,$quarier, $nb_lit,$id_ag );
+
+            if ($isInsert) {
+                $info = ajout_succes_info("Nouveau batiment ajoutée avec success");
+                $this->session->set_flashdata('info', $info);
+
+                redirect('Agence/new_batiment');
+            } else {
+                $info = ajout_fail_info('Veuillez verifier vos information et réessayez');
+                $this->session->set_flashdata('info', $info);
+            }
+        }
+        $data['info'] = "";
+       $data['tableau'] = $this->get_batiment();
+        $this->load->view('template/template', $data);
+    }
+    }
+    
+	
+	
+	public function update_quota($id = '') {
+         //$data['options'] = $this->get_option_guerite();
+          $type = $this->session->userdata('type');
+        if ($type==1) {
+        $data['menu_top']="template/menu_top";
+        $data['main_content'] = "Edite_quotas";
+        if ($id != '' && $id > 0) {
+            $query = $this->agenceManager->liste_quotas(array('ID_QUOTA' => $id));
+            if ($query) {
+                $data['quotas_edit'] = $query;
+            }
+        } elseif ($this->input->post('id')) {
+            $id = $this->input->post('id');
+        $this->form_validation->set_rules('quotas', '"Quotas"', 'trim|required|min_length[4]|max_length[52]|encode_php_tags');
+        $this->form_validation->set_rules( 'anne_quotas',"Année", 'trim|required|min_length[2]|max_length[50]|encode_php_tags');
+        $this->form_validation->set_rules( 'motif_quotas',"Motif", 'trim|required|min_length[4]|max_length[50]|encode_php_tags');
+            if ($this->form_validation->run()) {
+                $isInsert = FALSE;
+                //recuperation valeur
+          $quotas = $this->input->post('quotas');
+            $anne_quotas = $this->input->post('anne_quotas');
+            $motif_quotas = $this->input->post('motif_quotas');
+            $description = $this->input->post('description');      
+ $isInsert = $this->agenceManager->update_quotas($id ,$quotas,$anne_quotas,$motif_quotas, $description);
+                if ($isInsert) {
+                    $info = ajout_succes_info("Mise à jour Ajouté");
+                    $this->session->set_flashdata('info', $info);
+
+                    redirect('Agence/New_quotas');
+                   }else{
+                    $info = ajout_fail_info('Veuillez verifier vos information et réessayez');
+                    $this->session->set_flashdata('info', $info);
+                         }
+            } else {
+                $this->update($id);
+            }
+        } elseif ($id == "") {
+            redirect('Agence/New_quotas');
+        }
+
+        $data['info'] = "";
+        $data['tableau'] = $this->get_quotas();
+
+        $this->load->view('template/template', $data);
+    }}
+	/////////////update batiment
+	public function update_bati($id = '') {
+         //$data['options'] = $this->get_option_guerite();
+          $type = $this->session->userdata('type');
+        if ($type==1) {
+        $data['menu_top']="template/menu_top";
+        $data['main_content'] = "Edite_batiment";
+        if ($id != '' && $id > 0) {
+            $query = $this->agenceManager->liste_batiment(array('ID_BATI' => $id));
+            $data['agence'] = $this->agenceManager->liste_agence(array('DELETE_AG' => 0));
+            if ($query) {
+                $data['batiment_edit'] = $query;
+            }
+        } elseif ($this->input->post('id')) {
+            $id = $this->input->post('id');
+       $this->form_validation->set_rules('nom_bati', '"Nom du batiment"', 'trim|required|min_length[2]|max_length[52]|encode_php_tags');
+        $this->form_validation->set_rules( 'proprietaire',"Proprietaire", 'trim|required|min_length[2]|max_length[50]|encode_php_tags');
+        $this->form_validation->set_rules( 'quarier',"Quartier", 'trim|required|min_length[4]|max_length[50]|encode_php_tags');
+            if ($this->form_validation->run()) {
+                $isInsert = FALSE;
+                //recuperation valeur
+          $nom_bati = $this->input->post('nom_bati');
+            $proprietaire = $this->input->post('proprietaire');
+            $quarier = $this->input->post('quarier');
+            $nb_lit = $this->input->post('nb_lit');
+            $id_ag = $this->input->post('id_ag');   
+ $isInsert = $this->agenceManager->update_batiment($id ,$nom_bati,$proprietaire,$quarier, $nb_lit,$id_ag);
+                if ($isInsert) {
+                    $info = ajout_succes_info("Mise à jour Ajouté");                
+                    redirect('Agence/new_batiment');
+                   }else{
+                    $info = ajout_fail_info('Veuillez verifier vos information et réessayez');
+                    $this->session->set_flashdata('info', $info);
+                         }
+            } else {
+                //$this->update_bati($id);
+            }
+        } elseif ($id == "") {
+            redirect('Agence/new_batiment');
+        }
+
+        $data['info'] = "";
+        $data['tableau'] = $this->get_batiment();
+
+        $this->load->view('template/template', $data);
+    }}
+	public function Affect_quotas($id = '') {
+         //$data['options'] = $this->get_option_guerite();
+          $type = $this->session->userdata('type');
+        if ($type==1) {
+        $data['menu_top']="template/menu_top";
+        $data['main_content'] = "Affect_quotas";
+        if ($id != '' && $id > 0) {
+            $query = $this->agenceManager->liste_quotas(array('ID_QUOTA' => $id));
+            if ($query) {
+                $data['quotas_edit'] = $query;
+            }
+        } elseif ($this->input->post('pel')) {
+           
+        $this->form_validation->set_rules('quotas', '"Quotas agence"', 'trim|required|min_length[1]|max_length[52]|encode_php_tags');
+            if ($this->form_validation->run()) {
+                $isInsert = FALSE;
+                //recuperation valeur
+          $quotas = $this->input->post('quotas'); 
+       $ids = $this->input->post('pel');		  
+       $isInsert = $this->agenceManager->affecter($ids,$quotas);
+                if ($isInsert) {
+                    $info = ajout_succes_info("Mise à jour Ajouté");
+                    $this->session->set_flashdata('info', $info);
+
+                    redirect('Agence/New_quotas');
+                   }else{
+                    $info = ajout_fail_info('Veuillez verifier vos information et réessayez');
+                    $this->session->set_flashdata('info', $info);
+                         }
+            } else {
+                $this->Affect_quotas($id);
+				
+				//redirect('Agence/New_quotas');
+            }
+        } elseif ($id == "") {
+            redirect('Agence/New_quotas');
+        }
+
+        $data['info'] = "";
+        $data['tableau'] = $this->get_agence_quota();
+
+        $this->load->view('template/template', $data);
+    }}
+function get_tableau() {
+    $type = $this->session->userdata('type');
+        if ($type==1) {  
+$template = array('table_open'=> '<table id="tab" class="  table table-hover table-striped table-bordered" border=1>' );
+        $this->table->set_heading(array('Agence_de_voyages ','Contacts', "E-mail" ,'Siege','Login ',  '<td colspan="2">Action</td>'));
+        
+        $query_agence = $this->agenceManager->liste_agence(array('DELETE_AG'=>0));
+        if (is_array($query_agence) && count($query_agence)) {
+            $droit="faible";
+          
+            foreach ($query_agence as $loop) {
+                $this->table->add_row(array($loop->NOM_AG,$loop->PHONE_AG, $loop->MAIL_AG,
+                $loop->SIEGE_AG,$loop->LOGIN_AG,
+                    '<a href="'.site_url("Agence/update/$loop->ID_AG").'" ><span class="glyphicon glyphicon-edit"></span> </a>',
+                    '<a href="'.site_url("Agence/delete/$loop->ID_AG").'"><span class="glyphicon glyphicon-trash"></span></a>'));
+            }
+        }
+
+        $this->table->set_template($template);
+        return $this->table->generate();
+}}
+function get_liste() {
+    $type = $this->session->userdata('type');
+        if ($type==1) {  
+$template = array('table_open'=> '<table id="tab" class="  table table-hover table-striped table-bordered" border=1>' );
+        $this->table->set_heading(array('Agence_de_voyages ','Contacts', "E-mail" ,'Siege','Login ',  'Quota pelerin','Quota vols','Aperçu'));
+        
+        $query_agence = $this->agenceManager->liste_agence(array('DELETE_AG'=>0));
+        if (is_array($query_agence) && count($query_agence)) {
+            $droit="faible";
+          
+            foreach ($query_agence as $loop) {
+                $this->table->add_row(array($loop->NOM_AG,$loop->PHONE_AG, $loop->MAIL_AG,
+                $loop->SIEGE_AG,$loop->LOGIN_AG,$loop->QUOTA_AG,'0',
+                    '<a href="#"><span class="glyphicon glyphicon-book"></span></a>'));
+            }
+        }
+
+        $this->table->set_template($template);
+        return $this->table->generate();
+}}
+
+function get_quotas() {
+    $type = $this->session->userdata('type');
+        if ($type==1) {  
+$template = array('table_open'=> '<table id="tab" class="  table table-hover table-striped table-bordered" border=1>' );
+        $this->table->set_heading(array('Quotas general ','Annee', "Motif" ,'Description',array('data'=>'ACTIONS', 'colspan'=>3 )));
+        
+        $query_quotas = $this->agenceManager->liste_quotas(array('DELETE_QUOTA'=>0));
+        if (is_array($query_quotas) && count($query_quotas)) {
+            $droit="faible";
+          
+            foreach ($query_quotas as $loop) {
+                $this->table->add_row(array($loop->QUOTAS,$loop->ANNE_QUOTA, $loop->MOTIF_QUOTA,$loop->DESCRIPTION,
+				'<a href="'.site_url("Agence/Affect_quotas/$loop->ID_QUOTA").'" ><span class="glyphicon glyphicon-edit"></span> </a>',
+                    '<a href="'.site_url("Agence/update_quota/$loop->ID_QUOTA").'" ><span class="glyphicon glyphicon-edit"></span> </a>',
+                    '<a href="'.site_url("Agence/delete_quota/$loop->ID_QUOTA").'"><span class="glyphicon glyphicon-trash"></span></a>'));
+            }
+        }
+
+        $this->table->set_template($template);
+        return $this->table->generate();
+}}
+////quota ag
+function quota_ag(){
+    
+    
+  $quota=0;
+  $nbr_pel=0;
+ $id = $this->session->userdata('id');
+ $type = $this->session->userdata('type');
+ 
+if($type==1) {
+  $quota=  $this->agenceManager->get_vol_quota(array('id_ag'=>$id));
+  $nbr_pel=  $this->pelerinManager->count_pelerin("id_ag=$id"); 
+   
+  echo '<h3 class="btn btn-warning">'.$nbr_pel.' sur '.$quota.' Inscrit(s)</h3>';
+ }else{
+ 
+ $quota=  $this->agenceManager->get_sum();
+  $nbr_pel=$this->nbr_pelerin(); 
+ 
+   echo '<h3 class="btn btn-warning">'.$nbr_pel.' sur '.$quota.' Inscrit(s)</h3>';         
+ 
+    
+}}
+ 
+//////////////////table batiments
+function get_batiment() {
+    $type = $this->session->userdata('type');
+        if ($type==1 ) {  
+$template = array('table_open'=> '<table id="tab" class="  table table-hover table-striped table-bordered" border=1>' );
+        $this->table->set_heading(array('Batiment ','Proprietaire', "Quartier" ,'Nb de lit','Agence',array('data'=>'ACTIONS', 'colspan'=>3 )));
+        
+        $query_batiment = $this->agenceManager->liste_batiment(array('DELETE_BATI'=>0));
+        if (is_array($query_batiment) && count($query_batiment)) {
+            foreach ($query_batiment as $loop) {
+                $this->table->add_row(array($loop->NOM_BATI,$loop->PROPRIETAIRE_BATI, $loop->QUARTIER_BATI,$loop->NB_LIT_BATI,$loop->NOM_AG,
+			
+                    '<a href="'.site_url("Agence/update_bati/$loop->ID_BATI").'" ><span class="glyphicon glyphicon-edit"></span> </a>',
+                    '<a href="'.site_url("Agence/delete_bati/$loop->ID_BATI").'"><span class="glyphicon glyphicon-trash"></span></a>'));
+            }
+        }
+
+        $this->table->set_template($template);
+        return $this->table->generate();
+}}
+function get_vols() {
+    $type = $this->session->userdata('type');
+        if ($type==1) {  
+$template = array('table_open'=> '<table id="tab" class="  table table-hover table-striped table-bordered" border=1>' );
+        $this->table->set_heading(array('Trajet de: ','Arrivée à:', "Compagnie" ,'Numero vol','Volume vol','Contact',array('data'=>'ACTIONS', 'colspan'=>3 )));
+        
+        $query_vols = $this->agenceManager->liste_vols(array('DELETE_VOLS'=>0));
+        if (is_array($query_vols) && count($query_vols)) {
+            $droit="faible";
+          
+            foreach ($query_vols as $loop) {
+                $this->table->add_row(array($loop->TRAJET_VOLS,$loop->ARRIVER_VOLS, $loop->COMPAGNIE_VOLS,$loop->NUMERO_VOLS,$loop->VOLUME_VOLS,$loop->PHONE_VOLS ,
+                    '<a href="'.site_url("Agence/update_vols/$loop->ID_VOLS").'" ><span class="glyphicon glyphicon-edit"></span> </a>',
+					'<a href="'.site_url("Agence/update_vols/$loop->ID_VOLS").'" ><span class="glyphicon glyphicon-edit"></span> </a>',
+                    '<a href="'.site_url("Agence/delete_vols/$loop->ID_VOLS").'"><span class="glyphicon glyphicon-trash"></span></a>'));
+            }
+        }
+
+        $this->table->set_template($template);
+        return $this->table->generate();
+}}
+
+function get_agence_quota() {
+    $type = $this->session->userdata('type');
+        if ($type==1) {  
+$template = array('table_open'=> '<table id="tab" class="  table table-hover table-striped table-bordered" border=1>' );
+        //$this->table->set_heading(array('Quotas general ','Annee', "Motif" ,'Description',array('data'=>'ACTIONS', 'colspan'=>2 )));
+		 $this->table->set_heading(array('Choix','Agence_de_voyages ','Contacts', "E-mail" ,'Siege','Quotas '));
+        
+        $query_agence = $this->agenceManager->liste_agence(array('DELETE_AG'=>0));
+        if (is_array($query_agence) && count($query_agence)) {
+            $droit="faible";
+          
+            foreach ($query_agence as $loop) {
+                $this->table->add_row(array('<input type="checkbox" id="super" name=pel[] value="'.$loop->ID_AG.'" class="form-control" id="defaultUnchecked">',$loop->NOM_AG,$loop->PHONE_AG, $loop->MAIL_AG,
+                $loop->SIEGE_AG,$loop->QUOTA_AG));
+            }
+        }
+
+        $this->table->set_template($template);
+        return $this->table->generate();
+}}
+ function resize($originalFile, $targetFile, $newFileName, $newWidth) {
+        $result = NULL;
+        $info = getimagesize($originalFile);
+        $mime = $info['mime'];
+
+        switch ($mime) {
+            case 'image/jpeg':
+                $image_create_func = 'imagecreatefromjpeg';
+                $image_save_func = 'imagejpeg';
+                $new_image_ext = 'jpg';
+                break;
+
+            case 'image/png':
+                $image_create_func = 'imagecreatefrompng';
+                $image_save_func = 'imagepng';
+                $new_image_ext = 'png';
+                break;
+
+            case 'image/gif':
+                $image_create_func = 'imagecreatefromgif';
+                $image_save_func = 'imagegif';
+                $new_image_ext = 'gif';
+                break;
+
+            default:
+                throw Exception('Unknown image type.');
+        }
+
+        $img = $image_create_func($originalFile);
+        list($width, $height) = getimagesize($originalFile);
+
+        $newHeight = ($height / $width) * $newWidth;
+        $tmp = imagecreatetruecolor($newWidth, $newHeight);
+        imagecopyresampled($tmp, $img, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
+
+        if (file_exists($targetFile)) {
+            unlink($targetFile);
+        }
+        if ($image_save_func($tmp, $targetFile . $newFileName . ".jpg")) {
+
+            return TRUE;
+        } else {
+            return FALSE;
+        }
+    }
+
+function  get_option_guerite(){
+    $options=  array();
+    $options[0]="--Choisir Guerite--";
+    $query_categorie = $this->gueriteManager->get_guerite();
+        if (is_array($query_categorie) && count($query_categorie)) {
+            foreach ($query_categorie as $loop) {
+                $options[$loop->GUE_ID]=$loop->GUE_NOM;
+            }
+        }
+        return $options;
+}
+
+}
+

@@ -1,0 +1,88 @@
+<?php
+defined('BASEPATH') OR exit('No direct script access allowed');
+?>
+<html>
+<meta charset="utf8">
+<link rel="stylesheet" type="text/css" media="screen" href="<?php echo css_url('bootstrap.min'); ?>" />
+<link rel="stylesheet" type="text/css" media="screen" href="<?php echo css_url('jquery.toast.min'); ?>" />
+<link rel="stylesheet" type="text/css" media="all" href="<?php echo css_url('pnotify.custom.min'); ?>" />
+<link rel="stylesheet" type="text/css" media="all" href="<?php echo css_url('horloge'); ?>" />
+  <script src="<?php echo js_url('jquery.form'); ?>"></script>
+ <script src="<?php echo js_url('pnotify.custom.min'); ?>"></script>
+ <script src="<?php echo js_url('PNotify'); ?>"></script>
+ <script src="<?php echo js_url('PNotifyButtons'); ?>"></script>
+ <script src="<?php echo js_url('PNotifyMobile'); ?>"></script>
+ <script src="<?php echo js_url('PNotifyConfirm'); ?>"></script>
+ <script src="<?php echo js_url('PNotifyStyleMaterial'); ?>"></script>
+ <script src="<?php echo js_url('jquery'); ?>" ></script>
+ <body style="margin:auto;">
+ <center>
+  <div class="container-fluid" >
+  <div class="row">
+  <div class="col-md-2" style="float:left; margin-left:22px;">
+  </div>
+   <div class="col-md-7">
+   <div class="panel panel-primary" >
+  <div class="panel-body">
+  <div class="col-md-6" style="float:right;">
+  <div class="panel panel-info">
+    <div class="panel-heading "><h4><span class="glyphicon glyphicon-user"> Authentification</h4></div>
+  <div class="panel-body">
+  <form method="post" action="<?php echo site_url('Welcome'); ?>">
+  <?php echo $info;?>
+  <div class="col-md-12">
+<div class="form-group input-group">
+<span class="input-group-addon">
+						<span class="glyphicon glyphicon-user"></span>
+					</span>
+	<input type="text" name="pseudo" class="form-control" placeholder="Nom utilisateur" /><br>
+	</div>
+	</div>
+	<div class="col-md-12">
+	<div class="form-group input-group">
+<span class="input-group-addon">
+						<span class="glyphicon glyphicon-lock"></span>
+					</span>
+	<input type="password" name="mdp" class="form-control" id="password" placeholder="Mot de passe" />
+	</div>
+	<p style="float:right;"><a href="<?php echo site_url('Welcome/rappel_mdp');?>">Mot de passe oublié </a></p>
+	</div>
+	<div class="col-md-12">
+	<div class="form-group input-group">
+	<center><input type="submit" class="btn btn-success" style="float:right;" id="login" value="Se connecter"></center>
+	</div>
+	</div>
+	</form>
+	<p><a href="<?php echo site_url('Welcome/adhesion');?>">Je ne suis pas membre </a></p>
+  </div>
+  </div>
+  </div>
+ 
+  
+  <div class="col-md-6" >
+  <div class="panel panel-infos">
+  <center><div >
+	 <div class="form-group input-group ">
+	 <img width="335" height="360" border="0" src="<?php 
+                     
+                  echo   site_url('assets/images/logo.PNG');?>" title="Photo user" alt="ma photo"/>
+	</div>
+	</div>
+	</center>
+  </div>
+  </div>
+  
+  </div>
+   
+   </div>
+   </div>
+ 
+  </div>
+  </div>
+  </center>
+   <script src="<?php echo js_url('jquery'); ?>"></script>
+   <script src="<?php echo js_url('bootstrap.min'); ?>"></script>
+   
+  
+</body>
+</html>
